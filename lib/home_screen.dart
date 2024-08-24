@@ -22,11 +22,13 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _faceStatus = false;
+  bool _canRunDetection = true;
   late InputImage _inputImage;
   late Face _face;
-  final FaceDetector _faceDetector = FaceDetector(
+  FaceDetector _faceDetector = FaceDetector(
     options: FaceDetectorOptions(
       enableContours: true,
+      enableLandmarks: true,
     ),
   );
   CameraController? _controller;
@@ -51,38 +53,33 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             child: _buildCameraWidget(),
           ),
-          Container_(
-            height: 60,
-            color: Colors.white,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  onPressed: _faceStatus ? _onImageClick : null,
-                  icon: const Icon(
-                    Icons.camera,
+          if (_canRunDetection)
+            Container_(
+              height: 60,
+              color: Colors.white,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    onPressed: _faceStatus ? _onImageClick : null,
+                    icon: const Icon(
+                      Icons.camera,
+                    ),
+                    iconSize: 40,
+                    color: Colors.deepOrangeAccent,
+                    disabledColor: Colors.grey,
                   ),
-                  iconSize: 40,
-                  color: Colors.deepOrangeAccent,
-                  disabledColor: Colors.grey,
-                ),
-              ],
-            ),
-          )
+                ],
+              ),
+            )
         ],
       ),
     );
   }
 
-  @override
-  void dispose() {
-    _faceDetector.close();
-    super.dispose();
-  }
-
   // WIDGETS
   Widget _buildCameraWidget() {
-    if (_controller?.value.isInitialized == false) {
+    if (_controller?.value.isInitialized == false || !_canRunDetection) {
       return Container();
     }
 
@@ -114,6 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Camera Related
   Future _startLive() async {
+    _canRunDetection = true;
     _controller = CameraController(
       frontCamera,
       ResolutionPreset.high,
@@ -148,6 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
         imageData: _inputImage,
       );
 
+      await _stopLive();
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -155,14 +154,30 @@ class _HomeScreenState extends State<HomeScreen> {
             imageModel: imageModel,
           ),
         ),
+      ).then(
+        (value) {
+          _canRunDetection = true;
+          if (mounted) {
+            _faceDetector = FaceDetector(
+              options: FaceDetectorOptions(
+                enableContours: true,
+                enableLandmarks: true,
+              ),
+            );
+            _controller?.startImageStream(_processCameraImage);
+          }
+          setState(() {});
+        },
       );
     }
   }
 
   Future _stopLive() async {
-    await _controller?.stopImageStream();
-    await _controller?.dispose();
-    _controller = null;
+    _canRunDetection = false;
+    if (mounted) {
+      await _faceDetector.close();
+      await _controller?.stopImageStream();
+    }
   }
 
   // Detection Related
