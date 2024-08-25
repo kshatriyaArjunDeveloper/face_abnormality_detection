@@ -26,4 +26,7 @@ class FaceImageLocalDataSource {
       );
 
   Future<int> getTotalSavedImages() async => await _isarFaceImage.count();
+
+  Future<List<FaceImageModel>> getAllSavedImages() async =>
+      await _isarFaceImage.where().findAll();
 }

@@ -1,3 +1,4 @@
+import 'package:arjunjivi/presentation/face_detection_module/face_abnormality_detection_status_screen/face_abnormality_detection_status_screen.dart';
 import 'package:arjunjivi/presentation/face_detection_module/face_detection_screen/face_detection_cubit.dart';
 import 'package:arjunjivi/utility.dart';
 import 'package:camera/camera.dart';
@@ -47,7 +48,19 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: BlocBuilder<FaceDetectionCubit, FaceDetectionState>(
+        title: BlocConsumer<FaceDetectionCubit, FaceDetectionState>(
+          listener: (context, state) async {
+            if (state.totalImages > 4) {
+              await _stopLive();
+              FaceAbnormalityDetectionStatusScreen.navigate(context).then(
+                (value) {
+                  _startLive();
+                },
+              );
+            }
+          },
+          listenWhen: (previous, current) =>
+              previous.totalImages != current.totalImages,
           builder: (context, state) => Text(
             state.hasOneProperFace ? 'Click Pic' : 'Show Face Properly',
           ),
@@ -184,25 +197,6 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen> {
     context.read<FaceDetectionCubit>().sendImageForAbnormalityDetection(
           _cameraImage,
         );
-    // final image = _cameraImage.imageFromYUV420();
-    // final path = await image.saveImage();
-    // final imageModel = ImageModel(
-    //   image: image,
-    //   path: path,
-    // );
-    // await _stopLive();
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => AbnormalitiesScreen(
-    //       imageModel: imageModel,
-    //     ),
-    //   ),
-    // ).then(
-    //   (value) {
-    //     _startLive();
-    //   },
-    // );
   }
 
   // Detection Related

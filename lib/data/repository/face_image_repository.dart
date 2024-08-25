@@ -47,4 +47,8 @@ class FaceImageRepository {
     );
     return abnormalities;
   }
+
+  /// List of all locally saved [FaceImageModel]
+  Future<List<FaceImageModel>> getAllFaceModels() async =>
+      await _localDataSource.getAllSavedImages();
 }
