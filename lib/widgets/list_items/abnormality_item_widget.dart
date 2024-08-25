@@ -1,6 +1,12 @@
+import 'package:arjunjivi/presentation/face_detection_module/abnormalities_screen/abnormalities_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:quickui/quickui.dart';
 
+/// An widget shows pointed abnormality on face
+///
+/// Takes [abnormalityText] to show abnormality in [AbnormalitiesScreen]
+/// on face image with a dot to point and line from dot to top of image with
+/// abnormality text.
 class AbnormalityItemWidget extends StatelessWidget {
   late final String _abnormalityText;
 

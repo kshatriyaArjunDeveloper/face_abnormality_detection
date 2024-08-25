@@ -1,6 +1,6 @@
 import 'package:arjunjivi/domain/enum/abnormality_detection_status.dart';
 import 'package:arjunjivi/services/abnormality_detector_service.dart';
-import 'package:arjunjivi/utility.dart';
+import 'package:arjunjivi/utility/issar_db/issar_helper.dart';
 import 'package:isar/isar.dart';
 
 part 'face_image_model.g.dart';

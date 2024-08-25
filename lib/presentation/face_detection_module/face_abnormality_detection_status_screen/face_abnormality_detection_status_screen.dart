@@ -1,14 +1,11 @@
-import 'dart:io';
-
-import 'package:arjunjivi/domain/enum/abnormality_detection_status.dart';
 import 'package:arjunjivi/domain/model/face_image_model.dart';
 import 'package:arjunjivi/presentation/face_detection_module/abnormalities_screen/abnormalities_screen.dart';
 import 'package:arjunjivi/presentation/face_detection_module/face_abnormality_detection_status_screen/bloc/face_abnormality_detection_status_cubit.dart';
 import 'package:arjunjivi/router/app_routes.dart';
+import 'package:arjunjivi/widgets/list_items/face_image_with_status_item_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:quickui/quickui.dart';
 
 class FaceAbnormalityDetectionStatusScreen extends StatelessWidget {
   static Future<void> navigate(BuildContext context) => context.push(
@@ -60,48 +57,14 @@ class FaceAbnormalityDetectionStatusScreen extends StatelessWidget {
   ) {
     return AspectRatio(
       aspectRatio: 1,
-      child: Row(
-        children: [
-          Expanded(
-            child: Container_(
-              borderWidth: 1,
-              borderColor: Colors.black,
-              color: Colors.black12,
-              child: Image.file(
-                File(model.id),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Padding_(
-              verticalPadding: 20,
-              child: Column(
-                children: [
-                  const Text(
-                    'Status',
-                  ),
-                  Text(
-                    model.status.asString,
-                  ),
-                  if (model.status == AbnormalityDetectionStatusEnum.done)
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () {
-                          AbnormalitiesScreen.navigate(
-                            context,
-                            model,
-                          );
-                        },
-                        child: const Text(
-                          'See abnormalities',
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ],
+      child: FaceImageWithStatusItem(
+        model: model,
+        onClick: () {
+          AbnormalitiesScreen.navigate(
+            context,
+            model,
+          );
+        },
       ),
     );
   }

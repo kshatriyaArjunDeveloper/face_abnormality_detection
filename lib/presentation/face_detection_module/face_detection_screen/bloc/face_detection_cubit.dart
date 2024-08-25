@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:arjunjivi/data/repository/face_image_repository.dart';
 import 'package:arjunjivi/domain/enum/abnormality_detection_status.dart';
 import 'package:arjunjivi/domain/model/face_image_model.dart';
-import 'package:arjunjivi/utility.dart';
+import 'package:arjunjivi/utility/camera/camera_extension.dart';
 import 'package:bloc/bloc.dart';
 import 'package:camera/camera.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';

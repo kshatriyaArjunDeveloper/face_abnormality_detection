@@ -2,7 +2,7 @@ import 'package:arjunjivi/domain/model/face_image_model.dart';
 import 'package:arjunjivi/presentation/face_detection_module/abnormalities_screen/abnormalities_screen.dart';
 import 'package:arjunjivi/presentation/face_detection_module/face_abnormality_detection_status_screen/bloc/face_abnormality_detection_status_cubit.dart';
 import 'package:arjunjivi/presentation/face_detection_module/face_abnormality_detection_status_screen/face_abnormality_detection_status_screen.dart';
-import 'package:arjunjivi/presentation/face_detection_module/face_detection_screen/face_detection_cubit.dart';
+import 'package:arjunjivi/presentation/face_detection_module/face_detection_screen/bloc/face_detection_cubit.dart';
 import 'package:arjunjivi/presentation/face_detection_module/face_detection_screen/face_detection_screen.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

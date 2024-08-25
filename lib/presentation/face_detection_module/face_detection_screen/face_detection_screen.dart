@@ -1,6 +1,6 @@
 import 'package:arjunjivi/presentation/face_detection_module/face_abnormality_detection_status_screen/face_abnormality_detection_status_screen.dart';
-import 'package:arjunjivi/presentation/face_detection_module/face_detection_screen/face_detection_cubit.dart';
-import 'package:arjunjivi/utility.dart';
+import 'package:arjunjivi/presentation/face_detection_module/face_detection_screen/bloc/face_detection_cubit.dart';
+import 'package:arjunjivi/utility/camera/camera_extension.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
