@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
-import 'package:arjunjivi/abnormality_detector_service.dart';
+import 'package:arjunjivi/services/abnormality_detector_service.dart';
 import 'package:arjunjivi/image_model.dart';
 import 'package:arjunjivi/widgets/list_items/abnormality_item_widget.dart';
 import 'package:flutter/material.dart';

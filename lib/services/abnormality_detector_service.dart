@@ -20,7 +20,7 @@ class AbnormalityDetectorService {
   Future<List<AbnormalitiesEnum>> getAbnormalities() async {
     await Future.delayed(
       const Duration(
-        seconds: 4,
+        seconds: 10,
       ),
     );
 
