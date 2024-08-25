@@ -50,7 +50,7 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen> {
       appBar: AppBar(
         title: BlocConsumer<FaceDetectionCubit, FaceDetectionState>(
           listener: (context, state) async {
-            if (state.totalImages > 4) {
+            if (state.totalImages > 10) {
               await _stopLive();
               FaceAbnormalityDetectionStatusScreen.navigate(context).then(
                 (value) {

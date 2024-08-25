@@ -53,4 +53,8 @@ class FaceImageRepository {
   /// List of all locally saved [FaceImageModel]
   Future<List<FaceImageModel>> getAllFaceModels() async =>
       await _localDataSource.getAllSavedImages();
+
+  /// List of all locally saved [FaceImageModel] which is still not processed
+  Future<List<FaceImageModel>> getUnProcessedFaceModels() async =>
+      await _localDataSource.getUnFinishedDetectedImages();
 }

@@ -1,3 +1,4 @@
+import 'package:arjunjivi/domain/enum/abnormality_detection_status.dart';
 import 'package:arjunjivi/domain/model/face_image_model.dart';
 import 'package:arjunjivi/services/local_db_service.dart';
 import 'package:isar/isar.dart';
@@ -29,4 +30,11 @@ class FaceImageLocalDataSource {
 
   Future<List<FaceImageModel>> getAllSavedImages() async =>
       await _isarFaceImage.where().findAll();
+
+  Future<List<FaceImageModel>> getUnFinishedDetectedImages() async =>
+      await _isarFaceImage
+          .filter()
+          .not()
+          .statusEqualTo(AbnormalityDetectionStatusEnum.done)
+          .findAll();
 }
