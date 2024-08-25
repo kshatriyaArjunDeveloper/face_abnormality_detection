@@ -1,4 +1,4 @@
-enum AbnormalityDetectionStatus {
+enum AbnormalityDetectionStatusEnum {
   done,
   inProcess,
   initial,

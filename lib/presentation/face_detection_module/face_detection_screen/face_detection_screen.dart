@@ -1,4 +1,3 @@
-import 'package:arjunjivi/abnormalities_screen.dart';
 import 'package:arjunjivi/presentation/face_detection_module/face_detection_screen/face_detection_cubit.dart';
 import 'package:arjunjivi/utility.dart';
 import 'package:camera/camera.dart';
@@ -7,8 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:quickui/quickui.dart';
-
-import '../../../image_model.dart';
 
 class FaceDetectionScreen extends StatefulWidget {
   const FaceDetectionScreen({super.key});
@@ -170,26 +167,29 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen> {
     _faceDetector.close();
   }
 
-  Future<void> _onImageClick() async {
-    final image = _cameraImage.imageFromYUV420();
-    final path = await image.saveImage();
-    final imageModel = ImageModel(
-      image: image,
-      path: path,
-    );
-    await _stopLive();
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AbnormalitiesScreen(
-          imageModel: imageModel,
-        ),
-      ),
-    ).then(
-      (value) {
-        _startLive();
-      },
-    );
+  void _onImageClick() {
+    context.read<FaceDetectionCubit>().sendImageForAbnormalityDetection(
+          _cameraImage,
+        );
+    // final image = _cameraImage.imageFromYUV420();
+    // final path = await image.saveImage();
+    // final imageModel = ImageModel(
+    //   image: image,
+    //   path: path,
+    // );
+    // await _stopLive();
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => AbnormalitiesScreen(
+    //       imageModel: imageModel,
+    //     ),
+    //   ),
+    // ).then(
+    //   (value) {
+    //     _startLive();
+    //   },
+    // );
   }
 
   // Detection Related

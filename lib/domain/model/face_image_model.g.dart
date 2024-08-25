@@ -23,9 +23,9 @@ const FaceImageModelSchema = CollectionSchema(
       type: IsarType.byteList,
       enumMap: _FaceImageModelabnormalitiesEnumValueMap,
     ),
-    r'imagePath': PropertySchema(
+    r'id': PropertySchema(
       id: 1,
-      name: r'imagePath',
+      name: r'id',
       type: IsarType.string,
     ),
     r'status': PropertySchema(
@@ -39,7 +39,7 @@ const FaceImageModelSchema = CollectionSchema(
   serialize: _faceImageModelSerialize,
   deserialize: _faceImageModelDeserialize,
   deserializeProp: _faceImageModelDeserializeProp,
-  idName: r'id',
+  idName: r'isarId',
   indexes: {},
   links: {},
   embeddedSchemas: {},
@@ -61,7 +61,7 @@ int _faceImageModelEstimateSize(
       bytesCount += 3 + value.length;
     }
   }
-  bytesCount += 3 + object.imagePath.length * 3;
+  bytesCount += 3 + object.id.length * 3;
   return bytesCount;
 }
 
@@ -73,7 +73,7 @@ void _faceImageModelSerialize(
 ) {
   writer.writeByteList(
       offsets[0], object.abnormalities?.map((e) => e.index).toList());
-  writer.writeString(offsets[1], object.imagePath);
+  writer.writeString(offsets[1], object.id);
   writer.writeByte(offsets[2], object.status.index);
 }
 
@@ -90,11 +90,10 @@ FaceImageModel _faceImageModelDeserialize(
             _FaceImageModelabnormalitiesValueEnumMap[e] ??
             AbnormalitiesEnum.foreheadWrinkles)
         .toList(),
-    id: id,
-    imagePath: reader.readString(offsets[1]),
+    id: reader.readString(offsets[1]),
     status:
         _FaceImageModelstatusValueEnumMap[reader.readByteOrNull(offsets[2])] ??
-            AbnormalityDetectionStatus.done,
+            AbnormalityDetectionStatusEnum.done,
   );
   return object;
 }
@@ -118,7 +117,7 @@ P _faceImageModelDeserializeProp<P>(
     case 2:
       return (_FaceImageModelstatusValueEnumMap[
               reader.readByteOrNull(offset)] ??
-          AbnormalityDetectionStatus.done) as P;
+          AbnormalityDetectionStatusEnum.done) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -142,13 +141,13 @@ const _FaceImageModelstatusEnumValueMap = {
   'initial': 2,
 };
 const _FaceImageModelstatusValueEnumMap = {
-  0: AbnormalityDetectionStatus.done,
-  1: AbnormalityDetectionStatus.inProcess,
-  2: AbnormalityDetectionStatus.initial,
+  0: AbnormalityDetectionStatusEnum.done,
+  1: AbnormalityDetectionStatusEnum.inProcess,
+  2: AbnormalityDetectionStatusEnum.initial,
 };
 
 Id _faceImageModelGetId(FaceImageModel object) {
-  return object.id ?? Isar.autoIncrement;
+  return object.isarId;
 }
 
 List<IsarLinkBase<dynamic>> _faceImageModelGetLinks(FaceImageModel object) {
@@ -160,7 +159,7 @@ void _faceImageModelAttach(
 
 extension FaceImageModelQueryWhereSort
     on QueryBuilder<FaceImageModel, FaceImageModel, QWhere> {
-  QueryBuilder<FaceImageModel, FaceImageModel, QAfterWhere> anyId() {
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterWhere> anyIsarId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
     });
@@ -169,70 +168,68 @@ extension FaceImageModelQueryWhereSort
 
 extension FaceImageModelQueryWhere
     on QueryBuilder<FaceImageModel, FaceImageModel, QWhereClause> {
-  QueryBuilder<FaceImageModel, FaceImageModel, QAfterWhereClause> idEqualTo(
-      Id id) {
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterWhereClause> isarIdEqualTo(
+      Id isarId) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IdWhereClause.between(
-        lower: id,
-        upper: id,
+        lower: isarId,
+        upper: isarId,
       ));
     });
   }
 
-  QueryBuilder<FaceImageModel, FaceImageModel, QAfterWhereClause> idNotEqualTo(
-      Id id) {
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterWhereClause>
+      isarIdNotEqualTo(Id isarId) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
             .addWhereClause(
-              IdWhereClause.lessThan(upper: id, includeUpper: false),
+              IdWhereClause.lessThan(upper: isarId, includeUpper: false),
             )
             .addWhereClause(
-              IdWhereClause.greaterThan(lower: id, includeLower: false),
+              IdWhereClause.greaterThan(lower: isarId, includeLower: false),
             );
       } else {
         return query
             .addWhereClause(
-              IdWhereClause.greaterThan(lower: id, includeLower: false),
+              IdWhereClause.greaterThan(lower: isarId, includeLower: false),
             )
             .addWhereClause(
-              IdWhereClause.lessThan(upper: id, includeUpper: false),
+              IdWhereClause.lessThan(upper: isarId, includeUpper: false),
             );
       }
     });
   }
 
-  QueryBuilder<FaceImageModel, FaceImageModel, QAfterWhereClause> idGreaterThan(
-      Id id,
-      {bool include = false}) {
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterWhereClause>
+      isarIdGreaterThan(Id isarId, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
-        IdWhereClause.greaterThan(lower: id, includeLower: include),
+        IdWhereClause.greaterThan(lower: isarId, includeLower: include),
       );
     });
   }
 
-  QueryBuilder<FaceImageModel, FaceImageModel, QAfterWhereClause> idLessThan(
-      Id id,
-      {bool include = false}) {
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterWhereClause>
+      isarIdLessThan(Id isarId, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
-        IdWhereClause.lessThan(upper: id, includeUpper: include),
+        IdWhereClause.lessThan(upper: isarId, includeUpper: include),
       );
     });
   }
 
-  QueryBuilder<FaceImageModel, FaceImageModel, QAfterWhereClause> idBetween(
-    Id lowerId,
-    Id upperId, {
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterWhereClause> isarIdBetween(
+    Id lowerIsarId,
+    Id upperIsarId, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IdWhereClause.between(
-        lower: lowerId,
+        lower: lowerIsarId,
         includeLower: includeLower,
-        upper: upperId,
+        upper: upperIsarId,
         includeUpper: includeUpper,
       ));
     });
@@ -404,127 +401,52 @@ extension FaceImageModelQueryFilter
     });
   }
 
-  QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
-      idIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'id',
-      ));
-    });
-  }
-
-  QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
-      idIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'id',
-      ));
-    });
-  }
-
   QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition> idEqualTo(
-      Id? value) {
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'id',
         value: value,
+        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
       idGreaterThan(
-    Id? value, {
+    String value, {
     bool include = false,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
         property: r'id',
         value: value,
+        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
       idLessThan(
-    Id? value, {
+    String value, {
     bool include = false,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
         property: r'id',
         value: value,
+        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition> idBetween(
-    Id? lower,
-    Id? upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'id',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
-    });
-  }
-
-  QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
-      imagePathEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'imagePath',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
-      imagePathGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'imagePath',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
-      imagePathLessThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'imagePath',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
-      imagePathBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -533,7 +455,7 @@ extension FaceImageModelQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'imagePath',
+        property: r'id',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -544,13 +466,13 @@ extension FaceImageModelQueryFilter
   }
 
   QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
-      imagePathStartsWith(
+      idStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'imagePath',
+        property: r'id',
         value: value,
         caseSensitive: caseSensitive,
       ));
@@ -558,13 +480,13 @@ extension FaceImageModelQueryFilter
   }
 
   QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
-      imagePathEndsWith(
+      idEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'imagePath',
+        property: r'id',
         value: value,
         caseSensitive: caseSensitive,
       ));
@@ -572,21 +494,22 @@ extension FaceImageModelQueryFilter
   }
 
   QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
-      imagePathContains(String value, {bool caseSensitive = true}) {
+      idContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
-        property: r'imagePath',
+        property: r'id',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
-      imagePathMatches(String pattern, {bool caseSensitive = true}) {
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition> idMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
-        property: r'imagePath',
+        property: r'id',
         wildcard: pattern,
         caseSensitive: caseSensitive,
       ));
@@ -594,27 +517,83 @@ extension FaceImageModelQueryFilter
   }
 
   QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
-      imagePathIsEmpty() {
+      idIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'imagePath',
+        property: r'id',
         value: '',
       ));
     });
   }
 
   QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
-      imagePathIsNotEmpty() {
+      idIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'imagePath',
+        property: r'id',
         value: '',
       ));
     });
   }
 
   QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
-      statusEqualTo(AbnormalityDetectionStatus value) {
+      isarIdEqualTo(Id value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isarId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
+      isarIdGreaterThan(
+    Id value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'isarId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
+      isarIdLessThan(
+    Id value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'isarId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
+      isarIdBetween(
+    Id lower,
+    Id upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'isarId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
+      statusEqualTo(AbnormalityDetectionStatusEnum value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'status',
@@ -625,7 +604,7 @@ extension FaceImageModelQueryFilter
 
   QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
       statusGreaterThan(
-    AbnormalityDetectionStatus value, {
+    AbnormalityDetectionStatusEnum value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -639,7 +618,7 @@ extension FaceImageModelQueryFilter
 
   QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
       statusLessThan(
-    AbnormalityDetectionStatus value, {
+    AbnormalityDetectionStatusEnum value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -653,8 +632,8 @@ extension FaceImageModelQueryFilter
 
   QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
       statusBetween(
-    AbnormalityDetectionStatus lower,
-    AbnormalityDetectionStatus upper, {
+    AbnormalityDetectionStatusEnum lower,
+    AbnormalityDetectionStatusEnum upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
@@ -678,16 +657,15 @@ extension FaceImageModelQueryLinks
 
 extension FaceImageModelQuerySortBy
     on QueryBuilder<FaceImageModel, FaceImageModel, QSortBy> {
-  QueryBuilder<FaceImageModel, FaceImageModel, QAfterSortBy> sortByImagePath() {
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterSortBy> sortById() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'imagePath', Sort.asc);
+      return query.addSortBy(r'id', Sort.asc);
     });
   }
 
-  QueryBuilder<FaceImageModel, FaceImageModel, QAfterSortBy>
-      sortByImagePathDesc() {
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterSortBy> sortByIdDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'imagePath', Sort.desc);
+      return query.addSortBy(r'id', Sort.desc);
     });
   }
 
@@ -719,16 +697,16 @@ extension FaceImageModelQuerySortThenBy
     });
   }
 
-  QueryBuilder<FaceImageModel, FaceImageModel, QAfterSortBy> thenByImagePath() {
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterSortBy> thenByIsarId() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'imagePath', Sort.asc);
+      return query.addSortBy(r'isarId', Sort.asc);
     });
   }
 
   QueryBuilder<FaceImageModel, FaceImageModel, QAfterSortBy>
-      thenByImagePathDesc() {
+      thenByIsarIdDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'imagePath', Sort.desc);
+      return query.addSortBy(r'isarId', Sort.desc);
     });
   }
 
@@ -755,10 +733,10 @@ extension FaceImageModelQueryWhereDistinct
     });
   }
 
-  QueryBuilder<FaceImageModel, FaceImageModel, QDistinct> distinctByImagePath(
+  QueryBuilder<FaceImageModel, FaceImageModel, QDistinct> distinctById(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'imagePath', caseSensitive: caseSensitive);
+      return query.addDistinctBy(r'id', caseSensitive: caseSensitive);
     });
   }
 
@@ -771,9 +749,9 @@ extension FaceImageModelQueryWhereDistinct
 
 extension FaceImageModelQueryProperty
     on QueryBuilder<FaceImageModel, FaceImageModel, QQueryProperty> {
-  QueryBuilder<FaceImageModel, int, QQueryOperations> idProperty() {
+  QueryBuilder<FaceImageModel, int, QQueryOperations> isarIdProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'id');
+      return query.addPropertyName(r'isarId');
     });
   }
 
@@ -784,13 +762,13 @@ extension FaceImageModelQueryProperty
     });
   }
 
-  QueryBuilder<FaceImageModel, String, QQueryOperations> imagePathProperty() {
+  QueryBuilder<FaceImageModel, String, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'imagePath');
+      return query.addPropertyName(r'id');
     });
   }
 
-  QueryBuilder<FaceImageModel, AbnormalityDetectionStatus, QQueryOperations>
+  QueryBuilder<FaceImageModel, AbnormalityDetectionStatusEnum, QQueryOperations>
       statusProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'status');
