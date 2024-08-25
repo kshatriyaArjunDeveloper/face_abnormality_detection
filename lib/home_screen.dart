@@ -1,14 +1,12 @@
-import 'dart:io';
 import 'dart:math';
 
 import 'package:arjunjivi/abnormalities_screen.dart';
 import 'package:arjunjivi/main.dart';
+import 'package:arjunjivi/utility.dart';
 import 'package:camera/camera.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
-import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:quickui/quickui.dart';
 
 import 'image_model.dart';
@@ -23,15 +21,19 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool _faceStatus = false;
   bool _canRunDetection = true;
-  late InputImage _inputImage;
-  late Face _face;
   FaceDetector _faceDetector = FaceDetector(
     options: FaceDetectorOptions(
       enableContours: true,
-      enableLandmarks: true,
     ),
   );
   CameraController? _controller;
+  final _orientations = {
+    DeviceOrientation.portraitUp: 0,
+    DeviceOrientation.landscapeLeft: 90,
+    DeviceOrientation.portraitDown: 180,
+    DeviceOrientation.landscapeRight: 270,
+  };
+  late CameraImage _cameraImage;
 
   @override
   void initState() {
@@ -116,6 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
       frontCamera,
       ResolutionPreset.high,
       enableAudio: false,
+      imageFormatGroup: ImageFormatGroup.nv21,
     );
     _controller?.initialize().then(
       (_) {
@@ -130,25 +133,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _onImageClick() async {
-    final image = await _controller?.takePicture();
-    if (image != null) {
-      final directory = await getApplicationDocumentsDirectory();
-      String datePath =
-          DateFormat('yyyy-MM-dd-HH:mm:ss').format(DateTime.now());
-      final String imageFilePath = '${directory.path}/$datePath.jpg';
-      final File savedImage = File(image.path);
-      await savedImage.copy(imageFilePath);
-      print('Image saved to $imageFilePath');
+    final imageModel = ImageModel(
+      image: _cameraImage.imageFromYUV420(),
+    );
 
-      final imageModel = ImageModel(
-        image: image,
-        face: _face,
-        imageData: _inputImage,
-      );
-
-      await _stopLive();
-      Navigator.push(
-        context,
+    await _stopLive();
+    Navigator.push(
+      context,
         MaterialPageRoute(
           builder: (context) => AbnormalitiesScreen(
             imageModel: imageModel,
@@ -161,7 +152,6 @@ class _HomeScreenState extends State<HomeScreen> {
             _faceDetector = FaceDetector(
               options: FaceDetectorOptions(
                 enableContours: true,
-                enableLandmarks: true,
               ),
             );
             _controller?.startImageStream(_processCameraImage);
@@ -170,7 +160,6 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       );
     }
-  }
 
   Future _stopLive() async {
     _canRunDetection = false;
@@ -185,28 +174,29 @@ class _HomeScreenState extends State<HomeScreen> {
     // print('.....');
     // print('Total Faces: ${faces.length}');
     // print('.....');
-    if (mounted) {
-      setState(() {
-        final bool hasOneFace = faces.length == 1;
-        if (hasOneFace) {
-          print('Face contours: ${faces.first.contours}');
-          _faceStatus = hasOneFace && _checkFaceCentered(faces.first.contours);
-        } else {
-          _faceStatus = false;
-        }
-      });
-    }
   }
 
-  Future<void> _processImage(InputImage inputImage) async {
+  Future<void> _processImage(
+    InputImage inputImage,
+    CameraImage image,
+  ) async {
     if (inputImage.metadata?.size != null &&
         inputImage.metadata?.rotation != null) {
       final List<Face> faces = await _faceDetector.processImage(inputImage);
-      if (faces.isNotEmpty) {
-        _face = faces.first;
-        _inputImage = inputImage;
-      }
       _logDetection(faces);
+      if (mounted) {
+        setState(() {
+        final bool hasOneFace = faces.length == 1;
+        if (hasOneFace) {
+          _faceStatus = hasOneFace && _checkFaceCentered(faces.first.contours);
+            if (_faceStatus) {
+              _cameraImage = image;
+            }
+          } else {
+            _faceStatus = false;
+        }
+      });
+    }
     }
   }
 
@@ -256,36 +246,26 @@ class _HomeScreenState extends State<HomeScreen> {
   Future _processCameraImage(
     final CameraImage image,
   ) async {
-    final WriteBuffer allBytes = WriteBuffer();
-    for (final Plane plane in image.planes) {
-      allBytes.putUint8List(plane.bytes);
-    }
-    final bytes = allBytes.done().buffer.asUint8List();
-    final Size imageSize = Size(
-      image.width.toDouble(),
-      image.height.toDouble(),
-    );
-
-    final imageRotation =
-        InputImageRotationValue.fromRawValue(frontCamera.sensorOrientation) ??
-            InputImageRotation.rotation0deg;
-    final inputImageFormat =
-        InputImageFormatValue.fromRawValue(image.format.raw) ??
-            InputImageFormat.nv21;
-
-    final planeData = image.planes.map((final Plane plane) {
-      return InputImageMetadata(
-        bytesPerRow: plane.bytesPerRow,
-        size: imageSize,
-        rotation: imageRotation,
-        format: inputImageFormat,
-      );
-    }).toList();
-
+    final sensorOrientation = frontCamera.sensorOrientation;
+    InputImageRotation? rotation;
+    var rotationCompensation =
+        _orientations[_controller!.value.deviceOrientation];
+    rotationCompensation = (sensorOrientation + rotationCompensation!) % 360;
+    rotation = InputImageRotationValue.fromRawValue(rotationCompensation);
+    final plane = image.planes.first;
     final inputImage = InputImage.fromBytes(
-      bytes: bytes,
-      metadata: planeData.first,
+      bytes: image.getNv21Uint8List(),
+      metadata: InputImageMetadata(
+        size: Size(image.width.toDouble(), image.height.toDouble()),
+        rotation: rotation!, // used only in Android
+        format: InputImageFormat.nv21, // used only in iOS
+        bytesPerRow: plane.bytesPerRow, // used only in iOS
+      ),
     );
-    _processImage(inputImage);
+    _processImage(
+      inputImage,
+      image,
+    );
+    return;
   }
 }
