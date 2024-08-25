@@ -17,6 +17,7 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$FaceDetectionState {
   bool get hasOneProperFace => throw _privateConstructorUsedError;
+  int get totalImages => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $FaceDetectionStateCopyWith<FaceDetectionState> get copyWith =>
@@ -29,7 +30,7 @@ abstract class $FaceDetectionStateCopyWith<$Res> {
           FaceDetectionState value, $Res Function(FaceDetectionState) then) =
       _$FaceDetectionStateCopyWithImpl<$Res, FaceDetectionState>;
   @useResult
-  $Res call({bool hasOneProperFace});
+  $Res call({bool hasOneProperFace, int totalImages});
 }
 
 /// @nodoc
@@ -46,12 +47,17 @@ class _$FaceDetectionStateCopyWithImpl<$Res, $Val extends FaceDetectionState>
   @override
   $Res call({
     Object? hasOneProperFace = null,
+    Object? totalImages = null,
   }) {
     return _then(_value.copyWith(
       hasOneProperFace: null == hasOneProperFace
           ? _value.hasOneProperFace
           : hasOneProperFace // ignore: cast_nullable_to_non_nullable
               as bool,
+      totalImages: null == totalImages
+          ? _value.totalImages
+          : totalImages // ignore: cast_nullable_to_non_nullable
+              as int,
     ) as $Val);
   }
 }
@@ -64,7 +70,7 @@ abstract class _$$FaceDetectionStateImplCopyWith<$Res>
       __$$FaceDetectionStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({bool hasOneProperFace});
+  $Res call({bool hasOneProperFace, int totalImages});
 }
 
 /// @nodoc
@@ -79,12 +85,17 @@ class __$$FaceDetectionStateImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? hasOneProperFace = null,
+    Object? totalImages = null,
   }) {
     return _then(_$FaceDetectionStateImpl(
       hasOneProperFace: null == hasOneProperFace
           ? _value.hasOneProperFace
           : hasOneProperFace // ignore: cast_nullable_to_non_nullable
               as bool,
+      totalImages: null == totalImages
+          ? _value.totalImages
+          : totalImages // ignore: cast_nullable_to_non_nullable
+              as int,
     ));
   }
 }
@@ -92,15 +103,19 @@ class __$$FaceDetectionStateImplCopyWithImpl<$Res>
 /// @nodoc
 
 class _$FaceDetectionStateImpl implements _FaceDetectionState {
-  const _$FaceDetectionStateImpl({this.hasOneProperFace = false});
+  const _$FaceDetectionStateImpl(
+      {this.hasOneProperFace = false, this.totalImages = 0});
 
   @override
   @JsonKey()
   final bool hasOneProperFace;
+  @override
+  @JsonKey()
+  final int totalImages;
 
   @override
   String toString() {
-    return 'FaceDetectionState(hasOneProperFace: $hasOneProperFace)';
+    return 'FaceDetectionState(hasOneProperFace: $hasOneProperFace, totalImages: $totalImages)';
   }
 
   @override
@@ -109,11 +124,13 @@ class _$FaceDetectionStateImpl implements _FaceDetectionState {
         (other.runtimeType == runtimeType &&
             other is _$FaceDetectionStateImpl &&
             (identical(other.hasOneProperFace, hasOneProperFace) ||
-                other.hasOneProperFace == hasOneProperFace));
+                other.hasOneProperFace == hasOneProperFace) &&
+            (identical(other.totalImages, totalImages) ||
+                other.totalImages == totalImages));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, hasOneProperFace);
+  int get hashCode => Object.hash(runtimeType, hasOneProperFace, totalImages);
 
   @JsonKey(ignore: true)
   @override
@@ -124,11 +141,14 @@ class _$FaceDetectionStateImpl implements _FaceDetectionState {
 }
 
 abstract class _FaceDetectionState implements FaceDetectionState {
-  const factory _FaceDetectionState({final bool hasOneProperFace}) =
-      _$FaceDetectionStateImpl;
+  const factory _FaceDetectionState(
+      {final bool hasOneProperFace,
+      final int totalImages}) = _$FaceDetectionStateImpl;
 
   @override
   bool get hasOneProperFace;
+  @override
+  int get totalImages;
   @override
   @JsonKey(ignore: true)
   _$$FaceDetectionStateImplCopyWith<_$FaceDetectionStateImpl> get copyWith =>

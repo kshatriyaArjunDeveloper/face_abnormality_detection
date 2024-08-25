@@ -83,6 +83,12 @@ extension Nv21Converter on CameraImage {
     img = imglib.copyRotate(img, angle: 270);
     return img;
   }
+
+  Future<String> saveImage() async {
+    final image = imageFromYUV420();
+    final path = await image.saveImage();
+    return path;
+  }
 }
 
 extension SavingImage on imglib.Image {

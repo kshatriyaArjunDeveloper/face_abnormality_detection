@@ -13,7 +13,9 @@ part 'face_detection_cubit.freezed.dart';
 part 'face_detection_state.dart';
 
 class FaceDetectionCubit extends Cubit<FaceDetectionState> {
-  FaceDetectionCubit() : super(const FaceDetectionState());
+  FaceDetectionCubit() : super(const FaceDetectionState()) {
+    _updateTotalSavedImages();
+  }
 
   final FaceImageRepository _repository = FaceImageRepository();
 
@@ -32,16 +34,32 @@ class FaceDetectionCubit extends Cubit<FaceDetectionState> {
     return faceStatus;
   }
 
-  sendImageForAbnormalityDetection(
+  void sendImageForAbnormalityDetection(
     CameraImage cameraImage,
   ) async {
-    final image = cameraImage.imageFromYUV420();
-    final path = await image.saveImage();
-    await _repository.getFaceAbnormalities(
+    final path = await cameraImage.saveImage();
+    await _repository.saveImage(
       FaceImageModel(
         id: path,
         status: AbnormalityDetectionStatusEnum.initial,
         abnormalities: null,
+      ),
+    );
+    _updateTotalSavedImages();
+    await _repository.getFaceAbnormalities(
+      FaceImageModel(
+        id: path,
+        status: AbnormalityDetectionStatusEnum.inProcess,
+        abnormalities: null,
+      ),
+    );
+  }
+
+  void _updateTotalSavedImages() async {
+    final totalImages = await _repository.totalImagesSaved();
+    emit(
+      state.copyWith(
+        totalImages: totalImages,
       ),
     );
   }

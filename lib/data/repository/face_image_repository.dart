@@ -17,18 +17,28 @@ class FaceImageRepository {
     return _instance!;
   }
 
-  Future<List<AbnormalitiesEnum>> getFaceAbnormalities(
+  /// Saves [FaceImageModel] in db and returns total saved images
+  Future<void> saveImage(
     FaceImageModel model,
   ) async {
     await _localDataSource.saveImageModel(
-      FaceImageModel(
-        id: model.id,
-        status: AbnormalityDetectionStatusEnum.inProcess,
-        abnormalities: null,
-      ),
+      model,
+    );
+  }
+
+  /// Get total [FaceImageModel] in db
+  Future<int> totalImagesSaved() async =>
+      await _localDataSource.getTotalSavedImages();
+
+  /// Send to [FaceImageModel] for abnormality detection and save it to db
+  Future<List<AbnormalitiesEnum>> getFaceAbnormalities(
+    FaceImageModel model,
+  ) async {
+    await saveImage(
+      model,
     );
     final abnormalities = await _service.getAbnormalities();
-    await _localDataSource.saveImageModel(
+    await saveImage(
       FaceImageModel(
         id: model.id,
         status: AbnormalityDetectionStatusEnum.done,

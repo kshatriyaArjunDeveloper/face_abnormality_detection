@@ -18,9 +18,12 @@ class FaceImageLocalDataSource {
 
   Future<void> saveImageModel(
     FaceImageModel model,
-  ) async {
-    await _isarFaceImage.isar.writeTxn(() async {
-      await _isarFaceImage.put(model);
-    });
-  }
+  ) async =>
+      await _isarFaceImage.isar.writeTxn(
+        () async {
+          await _isarFaceImage.put(model);
+        },
+      );
+
+  Future<int> getTotalSavedImages() async => await _isarFaceImage.getSize();
 }
