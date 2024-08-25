@@ -1,3 +1,5 @@
+import 'package:arjunjivi/domain/model/face_image_model.dart';
+import 'package:arjunjivi/presentation/face_detection_module/abnormalities_screen/abnormalities_screen.dart';
 import 'package:arjunjivi/presentation/face_detection_module/face_abnormality_detection_status_screen/bloc/face_abnormality_detection_status_cubit.dart';
 import 'package:arjunjivi/presentation/face_detection_module/face_abnormality_detection_status_screen/face_abnormality_detection_status_screen.dart';
 import 'package:arjunjivi/presentation/face_detection_module/face_detection_screen/face_detection_cubit.dart';
@@ -29,6 +31,15 @@ final GoRouter goRouter = GoRouter(
         },
         child: const FaceAbnormalityDetectionStatusScreen(),
       ),
+    ),
+    GoRoute(
+      path: AppRoutes.abnormalitiesScreen,
+      builder: (context, state) {
+        final faceModel = state.extra as FaceImageModel;
+        return AbnormalitiesScreen(
+          faceModel: faceModel,
+        );
+      },
     ),
   ],
 );

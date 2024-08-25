@@ -8,9 +8,9 @@ extension Utility on AbnormalityDetectionStatusEnum {
   String get asString {
     switch (this) {
       case AbnormalityDetectionStatusEnum.done:
-        return 'Done';
+        return 'Processed';
       case AbnormalityDetectionStatusEnum.inProcess:
-        return 'In Process';
+        return 'Processing';
       case AbnormalityDetectionStatusEnum.initial:
         return 'Still not started';
     }

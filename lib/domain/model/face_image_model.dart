@@ -15,10 +15,14 @@ class FaceImageModel {
   final AbnormalityDetectionStatusEnum status;
   @enumerated
   final List<AbnormalitiesEnum>? abnormalities;
+  final double height;
+  final double width;
 
   FaceImageModel({
     required this.id,
     required this.status,
     required this.abnormalities,
+    required this.height,
+    required this.width,
   });
 }

@@ -1,20 +1,31 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:arjunjivi/domain/model/face_image_model.dart';
+import 'package:arjunjivi/router/app_routes.dart';
 import 'package:arjunjivi/services/abnormality_detector_service.dart';
-import 'package:arjunjivi/image_model.dart';
 import 'package:arjunjivi/widgets/list_items/abnormality_item_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 
 class AbnormalitiesScreen extends StatefulWidget {
-  late final ImageModel _imageModel;
+  static navigate(
+    BuildContext context,
+    FaceImageModel faceModel,
+  ) =>
+      context.push(
+        AppRoutes.abnormalitiesScreen,
+        extra: faceModel,
+      );
+
+  late final FaceImageModel _imageModel;
 
   AbnormalitiesScreen({
     super.key,
-    required ImageModel imageModel,
+    required FaceImageModel faceModel,
   }) {
-    _imageModel = imageModel;
+    _imageModel = faceModel;
   }
 
   @override
@@ -32,12 +43,14 @@ class _AbnormalitiesScreenState extends State<AbnormalitiesScreen> {
       performanceMode: FaceDetectorMode.accurate,
     ),
   );
+  File? _imageFile;
 
   @override
   void initState() {
     super.initState();
 
-    Future.delayed(Duration(seconds: 1)).then(
+    _imageFile = File(widget._imageModel.id);
+    Future.delayed(const Duration(milliseconds: 300)).then(
       (value) async {
         _getImageHeight();
         _makeAbnormalities();
@@ -53,7 +66,7 @@ class _AbnormalitiesScreenState extends State<AbnormalitiesScreen> {
         children: [
           Stack(
             children: [
-              _buildImage(),
+               _buildImage(),
               if (_abnormalities.isNotEmpty) ..._buildAbnormalitiesWidgetList(),
               if (_abnormalities.isEmpty) _buildLoading(),
             ],
@@ -79,7 +92,7 @@ class _AbnormalitiesScreenState extends State<AbnormalitiesScreen> {
 
   Image _buildImage() {
     return Image.file(
-      File(widget._imageModel.path),
+      _imageFile!,
       key: _imageKey,
     );
   }
@@ -136,9 +149,9 @@ class _AbnormalitiesScreenState extends State<AbnormalitiesScreen> {
 
   Future<void> _makeAbnormalities() async {
     final List<AbnormalitiesEnum> abnormalities =
-        await AbnormalityDetectorService().getAbnormalities();
+        widget._imageModel.abnormalities!;
 
-    final inputImage = InputImage.fromFile(File(widget._imageModel.path));
+    final inputImage = InputImage.fromFile(_imageFile!);
     final Face face = await _processImage(inputImage);
 
     List<AbnormalityUiModel> newAbnormalitiesModelList = [];
@@ -148,8 +161,8 @@ class _AbnormalitiesScreenState extends State<AbnormalitiesScreen> {
         abnormalityEnum: abnormality,
         contours: face.contours,
         imageSize: Size(
-          720,
-          1280,
+          widget._imageModel.width,
+          widget._imageModel.height,
         ),
         viewSize: Size(
           _width,

@@ -23,16 +23,26 @@ const FaceImageModelSchema = CollectionSchema(
       type: IsarType.byteList,
       enumMap: _FaceImageModelabnormalitiesEnumValueMap,
     ),
-    r'id': PropertySchema(
+    r'height': PropertySchema(
       id: 1,
+      name: r'height',
+      type: IsarType.double,
+    ),
+    r'id': PropertySchema(
+      id: 2,
       name: r'id',
       type: IsarType.string,
     ),
     r'status': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'status',
       type: IsarType.byte,
       enumMap: _FaceImageModelstatusEnumValueMap,
+    ),
+    r'width': PropertySchema(
+      id: 4,
+      name: r'width',
+      type: IsarType.double,
     )
   },
   estimateSize: _faceImageModelEstimateSize,
@@ -73,8 +83,10 @@ void _faceImageModelSerialize(
 ) {
   writer.writeByteList(
       offsets[0], object.abnormalities?.map((e) => e.index).toList());
-  writer.writeString(offsets[1], object.id);
-  writer.writeByte(offsets[2], object.status.index);
+  writer.writeDouble(offsets[1], object.height);
+  writer.writeString(offsets[2], object.id);
+  writer.writeByte(offsets[3], object.status.index);
+  writer.writeDouble(offsets[4], object.width);
 }
 
 FaceImageModel _faceImageModelDeserialize(
@@ -90,10 +102,12 @@ FaceImageModel _faceImageModelDeserialize(
             _FaceImageModelabnormalitiesValueEnumMap[e] ??
             AbnormalitiesEnum.foreheadWrinkles)
         .toList(),
-    id: reader.readString(offsets[1]),
+    height: reader.readDouble(offsets[1]),
+    id: reader.readString(offsets[2]),
     status:
-        _FaceImageModelstatusValueEnumMap[reader.readByteOrNull(offsets[2])] ??
+        _FaceImageModelstatusValueEnumMap[reader.readByteOrNull(offsets[3])] ??
             AbnormalityDetectionStatusEnum.done,
+    width: reader.readDouble(offsets[4]),
   );
   return object;
 }
@@ -113,11 +127,15 @@ P _faceImageModelDeserializeProp<P>(
               AbnormalitiesEnum.foreheadWrinkles)
           .toList()) as P;
     case 1:
-      return (reader.readString(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 2:
+      return (reader.readString(offset)) as P;
+    case 3:
       return (_FaceImageModelstatusValueEnumMap[
               reader.readByteOrNull(offset)] ??
           AbnormalityDetectionStatusEnum.done) as P;
+    case 4:
+      return (reader.readDouble(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -401,6 +419,72 @@ extension FaceImageModelQueryFilter
     });
   }
 
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
+      heightEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'height',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
+      heightGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'height',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
+      heightLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'height',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
+      heightBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'height',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
   QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition> idEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -647,6 +731,72 @@ extension FaceImageModelQueryFilter
       ));
     });
   }
+
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
+      widthEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'width',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
+      widthGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'width',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
+      widthLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'width',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterFilterCondition>
+      widthBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'width',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
 }
 
 extension FaceImageModelQueryObject
@@ -657,6 +807,19 @@ extension FaceImageModelQueryLinks
 
 extension FaceImageModelQuerySortBy
     on QueryBuilder<FaceImageModel, FaceImageModel, QSortBy> {
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterSortBy> sortByHeight() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'height', Sort.asc);
+    });
+  }
+
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterSortBy>
+      sortByHeightDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'height', Sort.desc);
+    });
+  }
+
   QueryBuilder<FaceImageModel, FaceImageModel, QAfterSortBy> sortById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -681,10 +844,35 @@ extension FaceImageModelQuerySortBy
       return query.addSortBy(r'status', Sort.desc);
     });
   }
+
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterSortBy> sortByWidth() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'width', Sort.asc);
+    });
+  }
+
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterSortBy> sortByWidthDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'width', Sort.desc);
+    });
+  }
 }
 
 extension FaceImageModelQuerySortThenBy
     on QueryBuilder<FaceImageModel, FaceImageModel, QSortThenBy> {
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterSortBy> thenByHeight() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'height', Sort.asc);
+    });
+  }
+
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterSortBy>
+      thenByHeightDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'height', Sort.desc);
+    });
+  }
+
   QueryBuilder<FaceImageModel, FaceImageModel, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -722,6 +910,18 @@ extension FaceImageModelQuerySortThenBy
       return query.addSortBy(r'status', Sort.desc);
     });
   }
+
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterSortBy> thenByWidth() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'width', Sort.asc);
+    });
+  }
+
+  QueryBuilder<FaceImageModel, FaceImageModel, QAfterSortBy> thenByWidthDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'width', Sort.desc);
+    });
+  }
 }
 
 extension FaceImageModelQueryWhereDistinct
@@ -730,6 +930,12 @@ extension FaceImageModelQueryWhereDistinct
       distinctByAbnormalities() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'abnormalities');
+    });
+  }
+
+  QueryBuilder<FaceImageModel, FaceImageModel, QDistinct> distinctByHeight() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'height');
     });
   }
 
@@ -743,6 +949,12 @@ extension FaceImageModelQueryWhereDistinct
   QueryBuilder<FaceImageModel, FaceImageModel, QDistinct> distinctByStatus() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'status');
+    });
+  }
+
+  QueryBuilder<FaceImageModel, FaceImageModel, QDistinct> distinctByWidth() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'width');
     });
   }
 }
@@ -762,6 +974,12 @@ extension FaceImageModelQueryProperty
     });
   }
 
+  QueryBuilder<FaceImageModel, double, QQueryOperations> heightProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'height');
+    });
+  }
+
   QueryBuilder<FaceImageModel, String, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
@@ -772,6 +990,12 @@ extension FaceImageModelQueryProperty
       statusProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'status');
+    });
+  }
+
+  QueryBuilder<FaceImageModel, double, QQueryOperations> widthProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'width');
     });
   }
 }

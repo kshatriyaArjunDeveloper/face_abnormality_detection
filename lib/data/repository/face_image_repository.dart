@@ -41,6 +41,8 @@ class FaceImageRepository {
     await saveImage(
       FaceImageModel(
         id: model.id,
+        width: model.width,
+        height: model.height,
         status: AbnormalityDetectionStatusEnum.done,
         abnormalities: abnormalities,
       ),

@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:arjunjivi/data/repository/face_image_repository.dart';
 import 'package:arjunjivi/domain/enum/abnormality_detection_status.dart';
@@ -38,10 +39,12 @@ class FaceDetectionCubit extends Cubit<FaceDetectionState> {
   void sendImageForAbnormalityDetection(
     CameraImage cameraImage,
   ) async {
-    final path = await cameraImage.saveImage();
+    final map = await cameraImage.saveImage();
     await _repository.saveImage(
       FaceImageModel(
-        id: path,
+        id: map[1],
+        width: (map[2] as Size).width,
+        height: (map[2] as Size).height,
         status: AbnormalityDetectionStatusEnum.initial,
         abnormalities: null,
       ),
@@ -49,7 +52,9 @@ class FaceDetectionCubit extends Cubit<FaceDetectionState> {
     _updateTotalSavedImages();
     await _repository.getFaceAbnormalities(
       FaceImageModel(
-        id: path,
+        id: map[1],
+        width: (map[2] as Size).width,
+        height: (map[2] as Size).height,
         status: AbnormalityDetectionStatusEnum.inProcess,
         abnormalities: null,
       ),

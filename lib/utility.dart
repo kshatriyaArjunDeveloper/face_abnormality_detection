@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
@@ -84,21 +85,36 @@ extension Nv21Converter on CameraImage {
     return img;
   }
 
-  Future<String> saveImage() async {
+  /// Returns a map with key : value
+  ///
+  ///     1: imageFilePath,
+  ///     2: Size
+  Future<Map<int, dynamic>> saveImage() async {
     final image = imageFromYUV420();
-    final path = await image.saveImage();
-    return path;
+    final map = await image.saveImage();
+    return map;
   }
 }
 
 extension SavingImage on imglib.Image {
-  Future<String> saveImage() async {
+  /// Returns a map with key : value
+  ///
+  ///     1: imageFilePath,
+  ///     2: Size
+  Future<Map<int, dynamic>> saveImage() async {
     final directory = await getApplicationDocumentsDirectory();
     String datePath = DateFormat('yyyy-MM-dd-HH:mm:ss').format(DateTime.now());
     final String imageFilePath = '${directory.path}/$datePath.jpg';
+    final map = {
+      1: imageFilePath,
+      2: Size(
+        width.toDouble(),
+        height.toDouble(),
+      ),
+    };
 
     await File(imageFilePath).writeAsBytes(imglib.JpegEncoder().encode(this));
-    return imageFilePath;
+    return map;
   }
 }
 

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:arjunjivi/domain/enum/abnormality_detection_status.dart';
 import 'package:arjunjivi/domain/model/face_image_model.dart';
+import 'package:arjunjivi/presentation/face_detection_module/abnormalities_screen/abnormalities_screen.dart';
 import 'package:arjunjivi/presentation/face_detection_module/face_abnormality_detection_status_screen/bloc/face_abnormality_detection_status_cubit.dart';
 import 'package:arjunjivi/router/app_routes.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +37,10 @@ class FaceAbnormalityDetectionStatusScreen extends StatelessWidget {
             itemCount: state.faceModelList.length,
             itemBuilder: (context, index) {
               final model = state.faceModelList[index];
-              return _buildListItem(model);
+              return _buildListItem(
+                model,
+                context,
+              );
             },
           );
         },
@@ -50,7 +54,10 @@ class FaceAbnormalityDetectionStatusScreen extends StatelessWidget {
     );
   }
 
-  AspectRatio _buildListItem(FaceImageModel model) {
+  AspectRatio _buildListItem(
+    FaceImageModel model,
+    BuildContext context,
+  ) {
     return AspectRatio(
       aspectRatio: 1,
       child: Row(
@@ -79,7 +86,12 @@ class FaceAbnormalityDetectionStatusScreen extends StatelessWidget {
                   if (model.status == AbnormalityDetectionStatusEnum.done)
                     Expanded(
                       child: TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          AbnormalitiesScreen.navigate(
+                            context,
+                            model,
+                          );
+                        },
                         child: const Text(
                           'See abnormalities',
                         ),
