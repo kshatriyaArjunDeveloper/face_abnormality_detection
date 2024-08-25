@@ -3,7 +3,7 @@ import 'package:arjunjivi/services/local_db_service.dart';
 import 'package:isar/isar.dart';
 
 class FaceImageLocalDataSource {
-  final IsarCollection _isarFaceImage =
+  final IsarCollection<FaceImageModel> _isarFaceImage =
       LocalDbService.instance.isar.faceImageModels;
 
   // Making Singleton
@@ -25,5 +25,5 @@ class FaceImageLocalDataSource {
         },
       );
 
-  Future<int> getTotalSavedImages() async => await _isarFaceImage.getSize();
+  Future<int> getTotalSavedImages() async => await _isarFaceImage.count();
 }

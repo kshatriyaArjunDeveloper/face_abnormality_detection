@@ -100,9 +100,22 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen> {
       height: 60,
       color: Colors.white,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          Expanded(
+            child: BlocBuilder<FaceDetectionCubit, FaceDetectionState>(
+              buildWhen: (previous, current) =>
+                  previous.totalImages != current.totalImages,
+              builder: (context, state) => Padding_(
+                leftPadding: 8,
+                child: Text(
+                  'Click ${10 - state.totalImages} more images',
+                ),
+              ),
+            ),
+          ),
           BlocBuilder<FaceDetectionCubit, FaceDetectionState>(
+            buildWhen: (previous, current) =>
+                previous.hasOneProperFace != current.hasOneProperFace,
             builder: (context, state) => IconButton(
               onPressed: state.hasOneProperFace ? _onImageClick : null,
               icon: const Icon(

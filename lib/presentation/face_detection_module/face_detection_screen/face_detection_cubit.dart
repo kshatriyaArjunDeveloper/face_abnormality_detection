@@ -14,6 +14,7 @@ part 'face_detection_state.dart';
 
 class FaceDetectionCubit extends Cubit<FaceDetectionState> {
   FaceDetectionCubit() : super(const FaceDetectionState()) {
+
     _updateTotalSavedImages();
   }
 
