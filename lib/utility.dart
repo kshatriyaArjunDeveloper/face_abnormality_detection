@@ -1,8 +1,11 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as imglib;
+import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 
 extension Nv21Converter on CameraImage {
   Uint8List getNv21Uint8List() {
@@ -58,7 +61,7 @@ extension Nv21Converter on CameraImage {
     CameraImage image = this;
     final uvRowStride = image.planes[1].bytesPerRow;
     final uvPixelStride = image.planes[1].bytesPerPixel ?? 0;
-    final img = imglib.Image(width: image.width, height: image.height);
+    var img = imglib.Image(width: image.width, height: image.height);
     for (final p in img) {
       final x = p.x;
       final y = p.y;
@@ -77,6 +80,18 @@ extension Nv21Converter on CameraImage {
       p.b = (yp + up * 1814 / 1024 - 227).round().clamp(0, 255).toInt();
     }
 
+    img = imglib.copyRotate(img, angle: 270);
     return img;
+  }
+}
+
+extension SavingImage on imglib.Image {
+  Future<String> saveImage() async {
+    final directory = await getApplicationDocumentsDirectory();
+    String datePath = DateFormat('yyyy-MM-dd-HH:mm:ss').format(DateTime.now());
+    final String imageFilePath = '${directory.path}/$datePath.jpg';
+
+    await File(imageFilePath).writeAsBytes(imglib.JpegEncoder().encode(this));
+    return imageFilePath;
   }
 }

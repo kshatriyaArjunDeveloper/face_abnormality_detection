@@ -4,12 +4,8 @@ import 'dart:math';
 import 'package:arjunjivi/abnormality_detector_service.dart';
 import 'package:arjunjivi/image_model.dart';
 import 'package:arjunjivi/widgets/list_items/abnormality_item_widget.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
-import 'package:image/image.dart' as imglib;
-import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
 
 class AbnormalitiesScreen extends StatefulWidget {
   late final ImageModel _imageModel;
@@ -44,15 +40,7 @@ class _AbnormalitiesScreenState extends State<AbnormalitiesScreen> {
     Future.delayed(Duration(seconds: 1)).then(
       (value) async {
         _getImageHeight();
-
-        final directory = await getApplicationDocumentsDirectory();
-        String datePath =
-            DateFormat('yyyy-MM-dd-HH:mm:ss').format(DateTime.now());
-        final String imageFilePath = '${directory.path}/$datePath.jpg';
-
-        await File(imageFilePath).writeAsBytes(
-            imglib.JpegEncoder().encode(widget._imageModel.image));
-        // _makeAbnormalities();
+        _makeAbnormalities();
       },
     );
   }
@@ -86,8 +74,8 @@ class _AbnormalitiesScreenState extends State<AbnormalitiesScreen> {
   }
 
   Image _buildImage() {
-    return Image.memory(
-      Uint8List.fromList(imglib.encodePng(widget._imageModel.image)),
+    return Image.file(
+      File(widget._imageModel.path),
       key: _imageKey,
     );
   }
@@ -142,34 +130,37 @@ class _AbnormalitiesScreenState extends State<AbnormalitiesScreen> {
     _height = renderBox.size.height;
   }
 
-  // Future<void> _makeAbnormalities() async {
-  //   final List<AbnormalitiesEnum> abnormalities =
-  //       await AbnormalityDetectorService().getAbnormalities();
-  //
-  //   final inputImage = InputImage.fromBytes(widget._imageModel.image);
-  //   final Face face = await _processImage(inputImage);
-  //
-  //   List<AbnormalityUiModel> newAbnormalitiesModelList = [];
-  //
-  //   for (var abnormality in abnormalities) {
-  //     final AbnormalityUiModel model = AbnormalityUiModel(
-  //       abnormalityEnum: abnormality,
-  //       contours: face.contours,
-  //       imageSize: Size(720, 1280),
-  //       viewSize: Size(
-  //         _height,
-  //         _width,
-  //       ),
-  //     );
-  //
-  //     newAbnormalitiesModelList.add(model);
-  //   }
-  //
-  //   setState(() {
-  //     _abnormalities.clear();
-  //     _abnormalities.addAll(newAbnormalitiesModelList);
-  //   });
-  // }
+  Future<void> _makeAbnormalities() async {
+    final List<AbnormalitiesEnum> abnormalities =
+        await AbnormalityDetectorService().getAbnormalities();
+
+    final inputImage = InputImage.fromFile(File(widget._imageModel.path));
+    final Face face = await _processImage(inputImage);
+
+    List<AbnormalityUiModel> newAbnormalitiesModelList = [];
+
+    for (var abnormality in abnormalities) {
+      final AbnormalityUiModel model = AbnormalityUiModel(
+        abnormalityEnum: abnormality,
+        contours: face.contours,
+        imageSize: Size(
+          720,
+          1280,
+        ),
+        viewSize: Size(
+          _width,
+          _height,
+        ),
+      );
+
+      newAbnormalitiesModelList.add(model);
+    }
+
+    setState(() {
+      _abnormalities.clear();
+      _abnormalities.addAll(newAbnormalitiesModelList);
+    });
+  }
 
   Future<Face> _processImage(
     InputImage inputImage,

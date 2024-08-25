@@ -133,10 +133,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _onImageClick() async {
+    final image = _cameraImage.imageFromYUV420();
+    final path = await image.saveImage();
     final imageModel = ImageModel(
-      image: _cameraImage.imageFromYUV420(),
+      image: image,
+      path: path,
     );
-
     await _stopLive();
     Navigator.push(
       context,
