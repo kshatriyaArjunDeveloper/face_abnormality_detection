@@ -1,4 +1,4 @@
-import 'package:arjunjivi/face_detection_screen.dart';
+import 'package:arjunjivi/router/go_route.dart';
 import 'package:arjunjivi/services/local_db_service.dart';
 import 'package:flutter/material.dart';
 
@@ -14,8 +14,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: FaceDetectionScreen(),
+    return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
+      routerConfig: goRouter,
     );
   }
 }

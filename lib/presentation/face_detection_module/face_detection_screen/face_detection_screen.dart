@@ -1,14 +1,14 @@
-import 'dart:math';
-
 import 'package:arjunjivi/abnormalities_screen.dart';
+import 'package:arjunjivi/presentation/face_detection_module/face_detection_screen/face_detection_cubit.dart';
 import 'package:arjunjivi/utility.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:quickui/quickui.dart';
 
-import 'image_model.dart';
+import '../../../image_model.dart';
 
 class FaceDetectionScreen extends StatefulWidget {
   const FaceDetectionScreen({super.key});
@@ -36,9 +36,6 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen> {
   bool _shouldDetect = false;
   bool _isDetectingInProcess = false;
 
-  // Tells whether only one face is detected in frame
-  bool _faceStatus = false;
-
   @override
   void initState() {
     super.initState();
@@ -53,8 +50,10 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          _faceStatus ? 'Click Pic' : 'Show Face Properly',
+        title: BlocBuilder<FaceDetectionCubit, FaceDetectionState>(
+          builder: (context, state) => Text(
+            state.hasOneProperFace ? 'Click Pic' : 'Show Face Properly',
+          ),
         ),
       ),
       body: Column(
@@ -106,14 +105,16 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          IconButton(
-            onPressed: _faceStatus ? _onImageClick : null,
-            icon: const Icon(
-              Icons.camera,
+          BlocBuilder<FaceDetectionCubit, FaceDetectionState>(
+            builder: (context, state) => IconButton(
+              onPressed: state.hasOneProperFace ? _onImageClick : null,
+              icon: const Icon(
+                Icons.camera,
+              ),
+              iconSize: 40,
+              color: Colors.deepOrangeAccent,
+              disabledColor: Colors.grey,
             ),
-            iconSize: 40,
-            color: Colors.deepOrangeAccent,
-            disabledColor: Colors.grey,
           ),
         ],
       ),
@@ -153,6 +154,7 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen> {
         _controller?.startImageStream(_processCameraImage);
         setState(() {
           _shouldDetect = true;
+          _isDetectingInProcess = false;
         });
       },
     );
@@ -178,13 +180,13 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen> {
     await _stopLive();
     Navigator.push(
       context,
-        MaterialPageRoute(
-          builder: (context) => AbnormalitiesScreen(
-            imageModel: imageModel,
-          ),
+      MaterialPageRoute(
+        builder: (context) => AbnormalitiesScreen(
+          imageModel: imageModel,
         ),
-      ).then(
-        (value) {
+      ),
+    ).then(
+      (value) {
         _startLive();
       },
     );
@@ -198,63 +200,10 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen> {
     if (inputImage.metadata?.size != null &&
         inputImage.metadata?.rotation != null) {
       final List<Face> faces = await _faceDetector.processImage(inputImage);
+      final faceStatus =
+          context.read<FaceDetectionCubit>().changeProperFaceStatus(faces);
+      if (faceStatus) _cameraImage = image;
       _isDetectingInProcess = false;
-      if (mounted) {
-        setState(() {
-        final bool hasOneFace = faces.length == 1;
-        if (hasOneFace) {
-          _faceStatus = hasOneFace && _checkFaceCentered(faces.first.contours);
-            if (_faceStatus) {
-              _cameraImage = image;
-            }
-          } else {
-            _faceStatus = false;
-        }
-      });
-    }
-    }
-  }
-
-  bool _checkFaceCentered(
-    Map<FaceContourType, FaceContour?> contours,
-  ) {
-    final Point<int>? rightEarMidPoint =
-        contours[FaceContourType.face]?.points[27];
-    final Point<int>? leftEarMidPoint =
-        contours[FaceContourType.face]?.points[9];
-    final Point<int>? faceTopPoint = contours[FaceContourType.face]?.points[0];
-    final Point<int>? faceBottomPoint =
-        contours[FaceContourType.face]?.points[18];
-    final Point<int>? faceCenterPoint =
-        contours[FaceContourType.noseBridge]?.points[1];
-
-    if (rightEarMidPoint == null ||
-        leftEarMidPoint == null ||
-        faceTopPoint == null ||
-        faceBottomPoint == null ||
-        faceCenterPoint == null) {
-      return false;
-    } else {
-      // Horizontally straight detection
-      final bool earsAtSameLevel =
-          (rightEarMidPoint.y - leftEarMidPoint.y).abs() < 60;
-
-      final rightEarNoseDistance =
-          (faceCenterPoint.x - rightEarMidPoint.x).abs();
-      final leftEarNoseDistance = (faceCenterPoint.x - leftEarMidPoint.x).abs();
-      final bool earsAtSimilarDistanceFromNose =
-          (rightEarNoseDistance - leftEarNoseDistance).abs() < 60;
-
-      // Vertically straight detection
-      final faceTopToNoseDistance = (faceCenterPoint.y - faceTopPoint.y).abs();
-      final faceBottomToNoseDistance =
-          (faceCenterPoint.y - faceBottomPoint.y).abs();
-      final bool noseAtSimilarDistanceFromFaceVerticalEdges =
-          (faceTopToNoseDistance - faceBottomToNoseDistance).abs() < 60;
-
-      return earsAtSameLevel &&
-          earsAtSimilarDistanceFromNose &&
-          noseAtSimilarDistanceFromFaceVerticalEdges;
     }
   }
 
