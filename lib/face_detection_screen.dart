@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:arjunjivi/abnormalities_screen.dart';
-import 'package:arjunjivi/main.dart';
 import 'package:arjunjivi/utility.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -11,21 +10,18 @@ import 'package:quickui/quickui.dart';
 
 import 'image_model.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class FaceDetectionScreen extends StatefulWidget {
+  const FaceDetectionScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<FaceDetectionScreen> createState() => _FaceDetectionScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  bool _faceStatus = false;
-  bool _canRunDetection = true;
-  FaceDetector _faceDetector = FaceDetector(
-    options: FaceDetectorOptions(
-      enableContours: true,
-    ),
-  );
+class _FaceDetectionScreenState extends State<FaceDetectionScreen> {
+  // For face detection
+  late FaceDetector _faceDetector;
+
+  // Camera related Vars
   CameraController? _controller;
   final _orientations = {
     DeviceOrientation.portraitUp: 0,
@@ -34,11 +30,23 @@ class _HomeScreenState extends State<HomeScreen> {
     DeviceOrientation.landscapeRight: 270,
   };
   late CameraImage _cameraImage;
+  late final CameraDescription _frontCamera;
+
+  // Status to stop or resume detection functionality
+  bool _shouldDetect = false;
+  bool _isDetectingInProcess = false;
+
+  // Tells whether only one face is detected in frame
+  bool _faceStatus = false;
 
   @override
   void initState() {
     super.initState();
-    _startLive();
+    _selectFrontCamera().then(
+      (_) {
+        _startLive();
+      },
+    );
   }
 
   @override
@@ -55,25 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             child: _buildCameraWidget(),
           ),
-          if (_canRunDetection)
-            Container_(
-              height: 60,
-              color: Colors.white,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    onPressed: _faceStatus ? _onImageClick : null,
-                    icon: const Icon(
-                      Icons.camera,
-                    ),
-                    iconSize: 40,
-                    color: Colors.deepOrangeAccent,
-                    disabledColor: Colors.grey,
-                  ),
-                ],
-              ),
-            )
+          if (_shouldDetect) _buildBottomBar()
         ],
       ),
     );
@@ -81,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // WIDGETS
   Widget _buildCameraWidget() {
-    if (_controller?.value.isInitialized == false || !_canRunDetection) {
+    if (_controller?.value.isInitialized == false || !_shouldDetect) {
       return Container();
     }
 
@@ -109,13 +99,43 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Container_ _buildBottomBar() {
+    return Container_(
+      height: 60,
+      color: Colors.white,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          IconButton(
+            onPressed: _faceStatus ? _onImageClick : null,
+            icon: const Icon(
+              Icons.camera,
+            ),
+            iconSize: 40,
+            color: Colors.deepOrangeAccent,
+            disabledColor: Colors.grey,
+          ),
+        ],
+      ),
+    );
+  }
+
   // METHODS
 
   // Camera Related
+
+  Future<void> _selectFrontCamera() async {
+    final cameras = await availableCameras();
+    _frontCamera = cameras
+        .where(
+          (camera) => camera.lensDirection == CameraLensDirection.front,
+        )
+        .first;
+  }
+
   Future _startLive() async {
-    _canRunDetection = true;
     _controller = CameraController(
-      frontCamera,
+      _frontCamera,
       ResolutionPreset.high,
       enableAudio: false,
       imageFormatGroup: ImageFormatGroup.nv21,
@@ -125,11 +145,27 @@ class _HomeScreenState extends State<HomeScreen> {
         if (!mounted) {
           return;
         }
-
+        _faceDetector = FaceDetector(
+          options: FaceDetectorOptions(
+            enableContours: true,
+          ),
+        );
         _controller?.startImageStream(_processCameraImage);
-        setState(() {});
+        setState(() {
+          _shouldDetect = true;
+        });
       },
     );
+  }
+
+  Future _stopLive() async {
+    setState(() {
+      _shouldDetect = false;
+    });
+    await _controller?.stopImageStream();
+    await _controller?.dispose();
+    _controller = null;
+    _faceDetector.close();
   }
 
   Future<void> _onImageClick() async {
@@ -149,35 +185,12 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ).then(
         (value) {
-          _canRunDetection = true;
-          if (mounted) {
-            _faceDetector = FaceDetector(
-              options: FaceDetectorOptions(
-                enableContours: true,
-              ),
-            );
-            _controller?.startImageStream(_processCameraImage);
-          }
-          setState(() {});
-        },
-      );
-    }
-
-  Future _stopLive() async {
-    _canRunDetection = false;
-    if (mounted) {
-      await _faceDetector.close();
-      await _controller?.stopImageStream();
-    }
+        _startLive();
+      },
+    );
   }
 
   // Detection Related
-  void _logDetection(List<Face> faces) {
-    // print('.....');
-    // print('Total Faces: ${faces.length}');
-    // print('.....');
-  }
-
   Future<void> _processImage(
     InputImage inputImage,
     CameraImage image,
@@ -185,7 +198,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (inputImage.metadata?.size != null &&
         inputImage.metadata?.rotation != null) {
       final List<Face> faces = await _faceDetector.processImage(inputImage);
-      _logDetection(faces);
+      _isDetectingInProcess = false;
       if (mounted) {
         setState(() {
         final bool hasOneFace = faces.length == 1;
@@ -248,7 +261,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Future _processCameraImage(
     final CameraImage image,
   ) async {
-    final sensorOrientation = frontCamera.sensorOrientation;
+    if (_isDetectingInProcess) return;
+    _isDetectingInProcess = true;
+    final sensorOrientation = _frontCamera.sensorOrientation;
     InputImageRotation? rotation;
     var rotationCompensation =
         _orientations[_controller!.value.deviceOrientation];

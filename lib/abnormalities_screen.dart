@@ -63,7 +63,11 @@ class _AbnormalitiesScreenState extends State<AbnormalitiesScreen> {
     );
   }
 
-  // WIDGETS
+  @override
+  void dispose() {
+    _faceDetector.close();
+    super.dispose();
+  } // WIDGETS
 
   AppBar _buildAppBar() {
     return AppBar(
