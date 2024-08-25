@@ -1,4 +1,5 @@
 import 'package:arjunjivi/data/data_source/local_data_source/face_image_local_data_source.dart';
+import 'package:arjunjivi/domain/enum/abnormalities_enum.dart';
 import 'package:arjunjivi/domain/enum/abnormality_detection_status.dart';
 import 'package:arjunjivi/domain/model/face_image_model.dart';
 import 'package:arjunjivi/services/abnormality_detector_service.dart';

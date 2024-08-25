@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:arjunjivi/domain/enum/abnormalities_enum.dart';
+
 /// A Singleton service class having abnormalities detection related services.
 ///
 /// Functionalities available:
@@ -34,12 +36,4 @@ class AbnormalityDetectorService {
         sublistIndices.map((index) => abnormalitiesList[index]).toList();
     return sublist;
   }
-}
-
-/// All types of skin abnormalities
-enum AbnormalitiesEnum {
-  foreheadWrinkles,
-  leftEyeFineLines,
-  rightMidCheekPores,
-  bottomRightLipFirmness,
 }

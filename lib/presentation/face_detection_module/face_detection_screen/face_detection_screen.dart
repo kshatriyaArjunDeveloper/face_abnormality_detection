@@ -1,3 +1,4 @@
+import 'package:arjunjivi/domain/model/face_image_model.dart';
 import 'package:arjunjivi/presentation/face_detection_module/face_abnormality_detection_status_screen/face_abnormality_detection_status_screen.dart';
 import 'package:arjunjivi/presentation/face_detection_module/face_detection_screen/bloc/face_detection_cubit.dart';
 import 'package:arjunjivi/utility/camera/camera_extension.dart';
@@ -8,6 +9,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:quickui/quickui.dart';
 
+/// This is the home screen.
+///
+/// Functionalities
+/// * Face Detection by front camera
+/// * Option to save and abnormality detect click image when only one
+/// face is in camera view
+/// * Go to [FaceAbnormalityDetectionStatusScreen] to see status of [FaceImageModel]
 class FaceDetectionScreen extends StatefulWidget {
   const FaceDetectionScreen({super.key});
 
@@ -50,13 +58,8 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen> {
       appBar: AppBar(
         title: BlocConsumer<FaceDetectionCubit, FaceDetectionState>(
           listener: (context, state) async {
-            if (state.totalImages > 10) {
-              await _stopLive();
-              FaceAbnormalityDetectionStatusScreen.navigate(context).then(
-                (value) {
-                  _startLive();
-                },
-              );
+            if (state.totalImages > 9) {
+              _navigateToDetectionStatusScreen(context);
             }
           },
           listenWhen: (previous, current) =>
@@ -121,10 +124,20 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen> {
               builder: (context, state) => Padding_(
                 leftPadding: 8,
                 child: Text(
-                  'Click ${10 - state.totalImages} more images',
+                  (state.totalImages < 10)
+                      ? 'Click ${10 - state.totalImages} more images'
+                      : 'Go to abnormality detection',
                 ),
               ),
             ),
+          ),
+          IconButton(
+            onPressed: () => _navigateToDetectionStatusScreen(context),
+            icon: const Icon(
+              Icons.face,
+            ),
+            iconSize: 40,
+            color: Colors.blue,
           ),
           BlocBuilder<FaceDetectionCubit, FaceDetectionState>(
             buildWhen: (previous, current) =>
@@ -240,5 +253,15 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen> {
       image,
     );
     return;
+  }
+
+  // Navigation
+  Future<void> _navigateToDetectionStatusScreen(BuildContext context) async {
+    await _stopLive();
+    FaceAbnormalityDetectionStatusScreen.navigate(context).then(
+      (value) {
+        _startLive();
+      },
+    );
   }
 }

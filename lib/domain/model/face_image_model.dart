@@ -1,5 +1,5 @@
+import 'package:arjunjivi/domain/enum/abnormalities_enum.dart';
 import 'package:arjunjivi/domain/enum/abnormality_detection_status.dart';
-import 'package:arjunjivi/services/abnormality_detector_service.dart';
 import 'package:arjunjivi/utility/issar_db/issar_helper.dart';
 import 'package:isar/isar.dart';
 

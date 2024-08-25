@@ -1,3 +1,4 @@
+/// Is used to make string ids for isar models.
 /// FNV-1a 64bit hash algorithm optimized for Dart Strings
 int fastHash(String string) {
   var hash = 0xcbf29ce484222325;

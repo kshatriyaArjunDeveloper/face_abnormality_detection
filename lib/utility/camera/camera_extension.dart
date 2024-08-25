@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 
 extension Nv21Converter on CameraImage {
+  /// Converts [CameraImage] into [ImageFormatGroup.nv21] Uint8List bytes
   Uint8List getNv21Uint8List() {
     final width = this.width;
     final height = this.height;
@@ -58,6 +59,7 @@ extension Nv21Converter on CameraImage {
     return Uint8List.fromList(nv21);
   }
 
+  /// Converts [CameraImage] into Dart Image class
   imglib.Image imageFromYUV420() {
     CameraImage image = this;
     final uvRowStride = image.planes[1].bytesPerRow;

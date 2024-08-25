@@ -1,14 +1,18 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:arjunjivi/domain/enum/abnormalities_enum.dart';
 import 'package:arjunjivi/domain/model/face_image_model.dart';
 import 'package:arjunjivi/router/app_routes.dart';
-import 'package:arjunjivi/services/abnormality_detector_service.dart';
 import 'package:arjunjivi/widgets/list_items/abnormality_item_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 
+/// This screen shows the abnormalities on a face image.
+///
+/// Functionalities
+/// * Show abnormalities from [FaceImageModel] taken as param.
 class AbnormalitiesScreen extends StatefulWidget {
   static navigate(
     BuildContext context,
@@ -187,6 +191,10 @@ class _AbnormalitiesScreenState extends State<AbnormalitiesScreen> {
   }
 }
 
+/// UI model for showing abnormalities on face image.
+///
+/// * [x] & [y] is point of abnormality on image from [FaceImageModel]
+/// * [abnormality] is the name of abnormality shown on image.
 class AbnormalityUiModel {
   late final double x;
   late final double y;

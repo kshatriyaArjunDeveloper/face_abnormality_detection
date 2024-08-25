@@ -22,6 +22,9 @@ class FaceDetectionCubit extends Cubit<FaceDetectionState> {
   final FaceImageRepository _repository = FaceImageRepository();
 
   // STATE EMIT METHODS
+
+  /// Set [FaceDetectionState.hasOneProperFace] to true if it has only one face
+  /// and showing on image view properly
   bool changeProperFaceStatus(
     List<Face> faces,
   ) {
@@ -36,6 +39,10 @@ class FaceDetectionCubit extends Cubit<FaceDetectionState> {
     return faceStatus;
   }
 
+  /// Takes [CameraImage],
+  /// 1. Save a image file from it
+  /// 2. Save a [FaceImageModel] in db
+  /// 3. Start Abnormality Detection of [FaceImageModel]
   void sendImageForAbnormalityDetection(
     CameraImage cameraImage,
   ) async {
@@ -61,6 +68,8 @@ class FaceDetectionCubit extends Cubit<FaceDetectionState> {
     );
   }
 
+  /// Updates [FaceDetectionState.totalImages] by total saved [FaceImageModel]
+  /// images in db
   void _updateTotalSavedImages() async {
     final totalImages = await _repository.totalImagesSaved();
     emit(

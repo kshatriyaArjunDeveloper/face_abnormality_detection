@@ -1,3 +1,6 @@
+import 'package:arjunjivi/domain/model/face_image_model.dart';
+
+/// Tells about the detection status of [FaceImageModel]
 enum AbnormalityDetectionStatusEnum {
   done,
   inProcess,

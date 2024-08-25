@@ -31,6 +31,8 @@ class FaceImageLocalDataSource {
   Future<List<FaceImageModel>> getAllSavedImages() async =>
       await _isarFaceImage.where().findAll();
 
+  /// Give a list of [FaceImageModel] locally saved with
+  /// non [AbnormalityDetectionStatusEnum.done] status
   Future<List<FaceImageModel>> getUnFinishedDetectedImages() async =>
       await _isarFaceImage
           .filter()
